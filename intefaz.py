@@ -1,32 +1,23 @@
 import tkinter as tk
-from tkinter import messagebox
 
-#{} para almcenar inventario de producot
 inventario = {}
 
-
-#excepciones (las 3)
-class ProductoException(Exception):
-    
+class ExcepcionProducto(Exception):
     def __init__(self, mensaje):
         self.mensaje = mensaje
         super().__init__(self.mensaje)
 
 def validar_nombre_producto(nombre):
     if nombre == "":
-        raise ProductoException("El nombre del producto no puede estar vacío.")
+        raise ExcepcionProducto("El nombre del producto no puede estar vacío.")
     
 def validar_precio_producto(precio):
     if precio <= 0:
-        raise ProductoException("El precio del producto debe ser mayor que cero.")
+        raise ExcepcionProducto("El precio del producto debe ser mayor que cero.")
     
 def validar_cantidad_producto(cantidad):
     if cantidad < 0:
-        raise ProductoException("La cantidad del producto debe ser mayor que 0.")
-
-
-
-#agregar productos (nombre, precio, cantidad)
+        raise ExcepcionProducto("La cantidad del producto debe ser mayor o igual cero.")
 
 def agregar_producto(nombre, precio, cantidad):
     try:
@@ -36,7 +27,7 @@ def agregar_producto(nombre, precio, cantidad):
 
         if nombre in inventario:
             inventario[nombre]["Cantidad"] += cantidad
-            inventario[nombre]["Valor_total"] += (precio * cantidad)
+            inventario[nombre]["Valor_total"] += (precio*cantidad)
         else:
             inventario[nombre] = {
                 "Precio": precio,
@@ -45,50 +36,46 @@ def agregar_producto(nombre, precio, cantidad):
             }
 
         return (
-            f"Producto: {nombre}"
-            f"\nPrecio Unitario: ${precio:.2f}"
-            f"\nCantidad en Inventario: {inventario[nombre]['Cantidad']}"
-            f"\nValor Total en Inventario: ${inventario[nombre]['Valor_total']:.2f}"
+            f"Producto: {nombre}\n"
+            f"Precio Unitario: ${precio:.2f}\n"
+            f"Cantidad en Inventario: {inventario[nombre]['Cantidad']}\n"
+            f"Valor Total en Inventario: ${inventario[nombre]['Valor_total']:.2f}\n"
         )
 
-    except ProductoException as e:
+    except ExcepcionProducto as e:
         return f"Error: {e}"
 
 def agregar_interfaz():
-    
-    nombre = entry_nombre.get()
+    nombre = nombre_prodcto.get()
     try:
-        precio = float(entry_precio.get())
-        cantidad = int(entry_cantidad.get())
+        precio = float(precio_producto.get())
+        cantidad = int(cantidad_entrada.get())
         
         resultado = agregar_producto(nombre, precio, cantidad)
-        messagebox.showinfo("Resultado", resultado)
+        resultados.insert(tk.END, resultado + "\n")
     
     except ValueError:
-        messagebox.showerror("Error", "Por favor ingrese valores válidos para el precio y la cantidad.")
+        resultados.insert(tk.END, "Error: Por favor ingrese valores correctos para el precio y la cantidad.\n")
 
-###INTERFAZZ
 root = tk.Tk()
-root.title("Gestion de Produtos en tienda")
+root.title("Gestión de Productos en Tienda")
 
-#productos
 tk.Label(root, text="Producto:").grid(row=0, column=0, padx=10, pady=5)
-entry_nombre = tk.Entry(root)
-entry_nombre.grid(row=0, column=1, padx=10, pady=5)
+nombre_prodcto = tk.Entry(root)
+nombre_prodcto.grid(row=0, column=1, padx=10, pady=5)
 
-
-#precio
 tk.Label(root, text="Precio del Producto:").grid(row=1, column=0, padx=10, pady=5)
-entry_precio = tk.Entry(root)
-entry_precio.grid(row=1, column=1, padx=10, pady=5)
+precio_producto = tk.Entry(root)
+precio_producto.grid(row=1, column=1, padx=10, pady=5)
 
-#cantidad
 tk.Label(root, text="Cantidad del Producto:").grid(row=2, column=0, padx=10, pady=5)
-entry_cantidad = tk.Entry(root)
-entry_cantidad.grid(row=2, column=1, padx=10, pady=5)
+cantidad_entrada = tk.Entry(root)
+cantidad_entrada.grid(row=2, column=1, padx=10, pady=5)
 
-#al final para agregar
-btn_agregar = tk.Button(root, text="Agregar Producto", command=agregar_interfaz)
-btn_agregar.grid(row=3, column=0, columnspan=2, pady=10)
+boton_añadir = tk.Button(root, text="Agregar a inventario", command=agregar_interfaz)
+boton_añadir.grid(row=3, column=0, columnspan=2, pady=10)
+
+resultados = tk.Text(root, height=8, width=40)
+resultados.grid(row=4, column=0, columnspan=2, padx=10, pady=10)
 
 root.mainloop()
